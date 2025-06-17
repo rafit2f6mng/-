@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RAFIT 2F6 League</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0d1117;
+      color: white;
+    }
+    .topbar {
+      position: relative;
+      padding: 15px;
+      text-align: center;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .close-btn {
+      position: absolute;
+      left: 15px;
+      top: 13px;
+      font-size: 20px;
+      color: #58a6ff;
+      cursor: pointer;
+    }
+    .leaderboard {
+      padding: 15px;
+    }
+    .user-box {
+      display: flex;
+      justify-content: space-between;
+      background: #21262d;
+      padding: 12px 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .user-box.highlight {
+      background: #30363d;
+      font-weight: bold;
+      border: 1px solid #58a6ff;
+    }
+    .rank {
+      width: 40px;
+      font-size: 16px;
+    }
+    .username {
+      flex: 1;
+      font-size: 16px;
+    }
+    .points {
+      color: #58a6ff;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .loading {
+      text-align: center;
+      margin-top: 30px;
+      color: #8b949e;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="close-btn" onclick="window.location.href='dashboard.html#mng'">✖</span>
+  RAFIT 2F6 League Board
+</div>
+
+<div class="leaderboard" id="leaderboard">
+  <p class="loading">🔄 Loading leaderboard...</p>
+</div>
+
+<script>
+  const apiKey = "DGSW3LmtFq_UgAmGUqP0ihWWWRkOyG3HiaeYoXxV";
+  const baseId = "p3nr2rkn5pharzq";
+  const tableId = "m7ztqtge9w3x1i7";
+  const viewId = "vwgckz81ttu8vp5x";
+  const url = `https://app.nocodb.com/api/v1/db/data/v1/${baseId}/${tableId}?viewId=${viewId}&limit=100&sort=points.desc`;
+
+  const userUID = localStorage.getItem('userUID'); // अगर आपने UID सेव किया है
+
+  async function loadLeaderboard() {
+    const container = document.getElementById("leaderboard");
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'accept': 'application/json',
+          'xc-token': apiKey
+        }
+      });
+
+      const data = await res.json();
+      const users = data.list;
+
+      if (!users || users.length === 0) {
+        container.innerHTML = `<p class="loading">No users found!</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+
+      users.forEach((user, index) => {
+        const isCurrentUser = user.uid === userUID;
+        const box = document.createElement('div');
+        box.className = 'user-box' + (isCurrentUser ? ' highlight' : '');
+        box.innerHTML = `
+          <div class="rank">#${index + 1}</div>
+          <div class="username">${user.name}</div>
+          <div class="points">${user.points} pts</div>
+        `;
+        container.appendChild(box);
+      });
+
+    } catch (error) {
+      console.error(error);
+      container.innerHTML = `<p class="loading" style="color: red;">❌ Leaderboard load नहीं हुआ। बाद में try करें।</p>`;
+    }
+  }
+
+  loadLeaderboard();
+</script>
+
+</body>
+</html>

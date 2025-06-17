@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RAFIT 2F6 - Loading</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      height: 100vh;
+      width: 100%;
+      background-image: url('https://yourimageshare.com/ib/RUKY9U3xk1.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    .loading-text {
+      font-size: 24px;
+      margin-top: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 5px 15px;
+      border-radius: 10px;
+    }
+    .progress-bar {
+      width: 80%;
+      height: 20px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, #00ff99, #00ccff);
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-text" id="loadingText">Loading... 0%</div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <script>
+    // Progress Bar Animation
+    let percent = 0;
+    const text = document.getElementById("loadingText");
+    const fill = document.getElementById("progressFill");
+
+    const interval = setInterval(() => {
+      percent++;
+      text.textContent = `Loading... ${percent}%`;
+      fill.style.width = percent + "%";
+
+      if (percent >= 100) {
+        clearInterval(interval);
+        window.location.href = "dashboard.html";
+      }
+    }, 70);
+
+    // NocoDB API Auto Data Save
+    fetch("https://api.ipify.org?format=json")
+      .then(res => res.json())
+      .then(data => {
+        const ip = data.ip;
+        const now = new Date().toISOString();
+        const payload = {
+          IP: ip,
+          Timestamp: now,
+          Status: "Index Loaded"
+        };
+
+        fetch("https://app.nocodb.com/api/v1/db/data/m7ztqtge9w3x1i7/UserData", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "xc-token": "DGSW3LmtFq_UgAmGUqP0ihWWWRkOyG3HiaeYoXxV"
+          },
+          body: JSON.stringify(payload)
+        }).then(response => response.json())
+          .then(result => console.log("User Saved:", result))
+          .catch(err => console.error("Error:", err));
+      });
+  </script>
+</body>
+</html>

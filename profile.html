@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RAFIT 2F6 EX - Profile</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .close-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .profile-container {
+      max-width: 400px;
+      margin: auto;
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #444;
+    }
+
+    .profile-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    input {
+      background: #333;
+      color: white;
+    }
+
+    button {
+      background: #00ffcc;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .profile-pic img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #00ffcc;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Close Button -->
+  <button class="close-btn" onclick="goToDashboard()">✖</button>
+
+  <!-- Profile Form -->
+  <div class="profile-container">
+    <h2>Your Profile</h2>
+
+    <div class="profile-pic">
+      <img id="preview" src="https://via.placeholder.com/80" alt="Profile Photo">
+      <input type="file" id="photoInput" accept="image/*" onchange="loadPhoto(event)">
+    </div>
+
+    <input type="text" id="name" placeholder="Telegram Name" required>
+    <input type="text" id="username" placeholder="Telegram Username" required>
+    <input type="email" id="email" placeholder="Contact Gmail" required>
+
+    <button onclick="submitProfile()">Submit</button>
+  </div>
+
+  <script>
+    function goToDashboard() {
+      // Dashboard MNG section pe redirect
+      window.location.href = "dashboard.html#mng";
+    }
+
+    function loadPhoto(event) {
+      const image = document.getElementById('preview');
+      image.src = URL.createObjectURL(event.target.files[0]);
+    }
+
+    function submitProfile() {
+      const name = document.getElementById('name').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!name || !username || !email) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      // Store data in localStorage (replace this with Firebase/NocoDB save)
+      localStorage.setItem("profileName", name);
+      localStorage.setItem("profileUsername", username);
+      localStorage.setItem("profileEmail", email);
+      alert("Profile submitted successfully!");
+    }
+  </script>
+</body>
+</html>

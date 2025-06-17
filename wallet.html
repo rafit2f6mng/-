@@ -1,0 +1,163 @@
+<!-- wallet.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wallet | RAFIT 2F6 EX</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #0d1117;
+      color: #fff;
+      text-align: center;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #ff4d4f;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .container {
+      padding-top: 60px;
+    }
+    .connect-btn {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      border: none;
+      padding: 15px 25px;
+      font-size: 18px;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      margin: 20px 0;
+    }
+    .wallet-options {
+      display: none;
+      margin-top: 20px;
+    }
+    .wallet-options button {
+      margin: 6px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      background: #1f2937;
+      color: white;
+      cursor: pointer;
+    }
+    .temp-address {
+      margin-top: 30px;
+    }
+    .copy-input, .submit-input {
+      padding: 10px;
+      border-radius: 8px;
+      width: 80%;
+      margin-bottom: 10px;
+    }
+    .submit-btn {
+      background: #10b981;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button class="close-btn" onclick="goToMNG()">X</button>
+
+  <div class="container">
+    <h1>Wallet Connect</h1>
+    <button class="connect-btn" onclick="showWalletOptions()">Connect Wallet</button>
+
+    <div class="wallet-options" id="walletOptions">
+      <button onclick="generateAddress('TON')">TON Wallet</button>
+      <button onclick="generateAddress('Bitget')">Bitget Wallet</button>
+      <button onclick="generateAddress('Binance')">Binance Wallet</button>
+      <button onclick="generateAddress('MetaMask')">MetaMask</button>
+      <button onclick="generateAddress('RAFIT')">RAFIT 2F6 EX</button>
+      <button onclick="generateAddress('Other')">Other</button>
+    </div>
+
+    <div class="temp-address" id="tempAddressSection" style="display:none;">
+      <h3>Your Temporary Address:</h3>
+      <input type="text" id="tempAddress" class="copy-input" readonly />
+      <button onclick="copyAddress()">Copy Address</button>
+
+      <h3>Submit Your Address</h3>
+      <input type="text" id="submitAddress" class="submit-input" placeholder="Paste your address here" />
+      <button class="submit-btn" onclick="submitToNocoDB()">Submit</button>
+    </div>
+  </div>
+
+  <script>
+    function goToMNG() {
+      window.location.href = 'dashboard.html#MNG';
+    }
+
+    function showWalletOptions() {
+      document.getElementById("walletOptions").style.display = "block";
+    }
+
+    function generateAddress(walletType) {
+      let existing = localStorage.getItem("rafit_wallet_address");
+      if (!existing) {
+        const tempAddr = walletType + "_" + Math.random().toString(36).substring(2, 12);
+        localStorage.setItem("rafit_wallet_address", tempAddr);
+        existing = tempAddr;
+      }
+      document.getElementById("tempAddress").value = existing;
+      document.getElementById("tempAddressSection").style.display = "block";
+    }
+
+    function copyAddress() {
+      const addr = document.getElementById("tempAddress");
+      addr.select();
+      document.execCommand("copy");
+      alert("Address copied!");
+    }
+
+    function submitToNocoDB() {
+      const submittedAddr = document.getElementById("submitAddress").value.trim();
+      if (!submittedAddr) {
+        alert("Please paste your address first.");
+        return;
+      }
+
+      // NocoDB API Setup
+      const apiKey = "DGSW3LmtFq_UgAmGUqP0ihWWWRkOyG3HiaeYoXxV";
+      const apiUrl = "https://nocodb.com/api/v1/db/data/v1/p3nr2rkn5pharzq/m7ztqtge9w3x1i7";
+
+      fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "xc-token": apiKey
+        },
+        body: JSON.stringify({
+          address: submittedAddr,
+          temp_id: localStorage.getItem("rafit_wallet_address") || ""
+        })
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Submission failed");
+        return response.json();
+      })
+      .then(data => {
+        alert("Address submitted successfully!");
+      })
+      .catch(error => {
+        alert("Failed to submit address.");
+        console.error(error);
+      });
+    }
+  </script>
+</body>
+</html>

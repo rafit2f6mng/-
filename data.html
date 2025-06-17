@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RAFIT 2F6 MNG - Data Store</title>
+  <style>
+    body { font-family: Arial; background: #111; color: #fff; padding: 20px; }
+    .section { background: #222; padding: 15px; margin: 15px 0; border-radius: 10px; }
+    input, button, textarea {
+      width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: none;
+    }
+    button { background: #00ff99; color: #000; font-weight: bold; cursor: pointer; }
+    button:hover { background: #00cc88; }
+  </style>
+</head>
+<body>
+
+  <h1>🧠 RAFIT 2F6 MNG - Data Submit</h1>
+
+  <!-- Profile Registration -->
+  <div class="section">
+    <h2>👤 Profile Registration</h2>
+    <input type="text" id="fullname" placeholder="Full Name">
+    <input type="text" id="telegram" placeholder="Telegram Username">
+    <input type="email" id="email" placeholder="Contact Gmail">
+    <button onclick="submitProfile()">Submit Profile</button>
+  </div>
+
+  <!-- Wallet Submit -->
+  <div class="section">
+    <h2>🔐 Submit Wallet Address</h2>
+    <input type="text" id="walletAddress" placeholder="Paste Temporary Wallet Address">
+    <button onclick="submitWallet()">Submit Wallet</button>
+  </div>
+
+  <!-- Robox Activity -->
+  <div class="section">
+    <h2>🤖 Robox Fly Log</h2>
+    <textarea id="roboxNote" placeholder="Enter Robox status or logs..."></textarea>
+    <button onclick="submitRobox()">Submit Robox Log</button>
+  </div>
+
+  <script>
+    const baseId = "p3nr2rkn5pharzq";
+    const tableId = "m7ztqtge9w3x1i7";
+    const apiKey = "DGSW3LmtFq_UgAmGUqP0ihWWWRkOyG3HiaeYoXxV";
+    const apiUrl = `https://api.nocodb.com/v1/db/data/${baseId}/${tableId}`;
+
+    async function submitToNocoDB(data) {
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'xc-token': apiKey
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        alert("✅ Data Saved: " + JSON.stringify(result));
+      } catch (err) {
+        alert("❌ Error saving data: " + err.message);
+      }
+    }
+
+    function submitProfile() {
+      const fullName = document.getElementById("fullname").value;
+      const telegram = document.getElementById("telegram").value;
+      const email = document.getElementById("email").value;
+      if (!fullName || !telegram || !email) return alert("❗ All fields are required!");
+      const data = {
+        FullName: fullName,
+        Telegram: telegram,
+        Email: email,
+        Type: "Profile"
+      };
+      submitToNocoDB(data);
+    }
+
+    function submitWallet() {
+      const wallet = document.getElementById("walletAddress").value;
+      if (!wallet) return alert("❗ Enter wallet address!");
+      const data = {
+        Wallet: wallet,
+        Type: "Wallet"
+      };
+      submitToNocoDB(data);
+    }
+
+    function submitRobox() {
+      const note = document.getElementById("roboxNote").value;
+      if (!note) return alert("❗ Enter Robox log!");
+      const data = {
+        RoboxNote: note,
+        Type: "Robox"
+      };
+      submitToNocoDB(data);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RAFIT 2F6 - Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body {
+      background-color: #f0f0f0;
+      padding-bottom: 70px;
+      color: #222;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #111;
+      color: white;
+      padding: 15px;
+    }
+    .header .profile {
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .header .points {
+      font-size: 18px;
+      background: #00cc99;
+      padding: 5px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .content {
+      padding: 20px;
+      text-align: center;
+    }
+    .earn-section {
+      background: url('https://yourimageshare.com/ib/txGuo6Tr1s.jpg') no-repeat center/cover;
+      width: 100%;
+      height: 400px;
+      position: relative;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .tap-target {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .battery {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 10px;
+      background: #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .battery-fill {
+      height: 100%;
+      background: #00cc00;
+      width: 100%;
+      transition: width 0.3s;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: #111;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 999;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .bottom-nav button.active {
+      color: #00ff99;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="profile" onclick="window.location.href='profile.html'" style="cursor: pointer;">👤</div>
+    <div class="points" id="totalPoints" onclick="showTotalPoints()">RFP: 0</div>
+  </div>  <div class="content">
+    <h2>Welcome to RAFIT 2F6 Dashboard</h2>
+    <div class="earn-section">
+      <div class="tap-target" onclick="tapToEarn()">Tap RFT Token to Earn +1</div>
+      <div class="battery">
+        <div class="battery-fill" id="batteryFill"></div>
+      </div>
+    </div>
+  </div>  <div class="bottom-nav">
+    <button class="active" onclick="location.href='dashboard.html'">🏠<br>MNG</button>
+    <button onclick="location.href='tasks.html'">📋<br>Tasks</button>
+    <button onclick="location.href='league.html'">🏆<br>League</button>
+    <button onclick="location.href='rfp.html'">💎<br>RFP</button>
+    <button onclick="location.href='wallet.html'">👛<br>Wallet</button>
+  </div>  <script>
+    let batteryLevel = parseInt(localStorage.getItem("batteryLevel")) || 100;
+    let totalPoints = parseInt(localStorage.getItem("totalPoints")) || 0;
+    const batteryFill = document.getElementById("batteryFill");
+    const totalPointsDisplay = document.getElementById("totalPoints");
+
+    function updateBatteryDisplay() {
+      batteryFill.style.width = batteryLevel + "%";
+      localStorage.setItem("batteryLevel", batteryLevel);
+    }
+
+    function updatePointsDisplay() {
+      totalPointsDisplay.innerText = "RFP: " + totalPoints;
+    }
+
+    function showTotalPoints() {
+      alert("Your Total RFP Points: " + totalPoints);
+    }
+
+    function tapToEarn() {
+      const now = Date.now();
+      const chargingUntil = parseInt(localStorage.getItem("chargingUntil")) || 0;
+
+      if (batteryLevel === 0) {
+        if (now < chargingUntil) {
+          alert("Battery is charging. Please wait.");
+          return;
+        } else {
+          batteryLevel = 100;
+          localStorage.removeItem("chargingUntil");
+          updateBatteryDisplay();
+          return;
+        }
+      }
+
+      if (batteryLevel >= 10) {
+        batteryLevel -= 10;
+        totalPoints += 1;
+        localStorage.setItem("totalPoints", totalPoints);
+        updateBatteryDisplay();
+        updatePointsDisplay();
+      }
+
+      if (batteryLevel === 0) {
+        const nextChargeTime = now + 60 * 60 * 1000;
+        localStorage.setItem("chargingUntil", nextChargeTime);
+        alert("Battery drained. Charging started for 1 hour.");
+      }
+    }
+
+    function updateFromTasks() {
+      let taskPoints = parseInt(localStorage.getItem("taskPoints")) || 0;
+      if (taskPoints > 0) {
+        totalPoints += taskPoints;
+        localStorage.setItem("totalPoints", totalPoints);
+        localStorage.removeItem("taskPoints");
+      }
+    }
+
+    window.onload = function () {
+      const now = Date.now();
+      const chargingUntil = parseInt(localStorage.getItem("chargingUntil")) || 0;
+
+      if (now < chargingUntil) {
+        batteryLevel = 0;
+      } else if (batteryLevel === 0 && now >= chargingUntil) {
+        batteryLevel = 100;
+        localStorage.removeItem("chargingUntil");
+      }
+
+      updateBatteryDisplay();
+      updateFromTasks();
+      updatePointsDisplay();
+    };
+  </script></body>
+</html>

@@ -1,0 +1,237 @@
+<!-- ✅ RAFIT 2F6 EX – TASKS MODULE (Points permanently reflected in dashboard MNG section) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>2F6 Tasks</title>
+  <style>
+    body { margin: 0; font-family: Arial; background: #0d1117; color: white; }
+    .topbar {
+      position: relative;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+    .close-btn {
+      position: absolute;
+      left: 10px;
+      top: 12px;
+      font-size: 20px;
+      color: #58a6ff;
+      cursor: pointer;
+    }
+
+    /* ✅ New RFP-A section */
+    .rfpa-btn {
+      position: absolute;
+      right: 10px;
+      top: 12px;
+      font-size: 14px;
+      color: #58a6ff;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid #58a6ff;
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+
+    .tabbar { display: flex; overflow-x: auto; border-bottom: 1px solid #30363d; }
+    .tab { padding: 12px 20px; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; }
+    .tab.active { border-bottom: 3px solid #58a6ff; background: #21262d; }
+    .section { display: none; padding: 15px; }
+    .section.active { display: block; }
+    .task-box { background: #21262d; padding: 15px; margin-bottom: 12px; border-radius: 10px; }
+    .task-box.locked { opacity: 0.5; pointer-events: none; }
+    .task-box h3 { margin: 0 0 5px; font-size: 16px; }
+    .task-box p { margin: 0 0 10px; font-size: 14px; }
+    .btn { background: #238636; color: white; padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .btn:disabled { background: gray; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="close-btn" onclick="window.location.href='dashboard.html#mng'">✖</span>
+    2F6 Earn Tasks
+
+    <!-- ✅ RFP-A Button Added -->
+    <span class="rfpa-btn" onclick="showTotalPoints()">RFP-A</span>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab active" onclick="showTab(0)">Daily Tasks</div>
+    <div class="tab" onclick="showTab(1)">R & C</div>
+    <div class="tab" onclick="showTab(2)">Referral Name</div>
+    <div class="tab" onclick="showTab(3)">R-C-P-B TKS</div>
+    <div class="tab" onclick="showTab(4)">More</div>
+  </div>
+
+  <div class="section active" id="tab0"></div>
+  <div class="section" id="tab1"></div>
+  <div class="section" id="tab2">
+    <div class="task-box">
+      <h3>Invite your friends to RAFIT 2F6</h3>
+      <p>Use the invite link below to refer friends:</p>
+      <p><a href="https://t.me/RAFIT_2F6_BOT" target="_blank" style="color:#58a6ff">https://t.me/RAFIT_2F6_BOT</a></p>
+      <p>Total Invites: <span id="total-invites">0</span></p>
+      <div id="invite-milestones"></div>
+    </div>
+  </div>
+  <div class="section" id="tab3">
+    <div class="task-box">
+      <h3>R-C-P-B TKS</h3>
+      <p>Coming Soon...</p>
+    </div>
+  </div>
+  <div class="section" id="tab4">
+    <div class="task-box">
+      <h3>Completed Tasks</h3>
+      <p id="completed-list">No tasks completed yet.</p>
+    </div>
+  </div>
+
+  <script>
+    let totalTokens = Number(localStorage.getItem('totalTokens') || 0);
+    let claimedDays = JSON.parse(localStorage.getItem('claimedDays') || '[]');
+    let claimedLinks = JSON.parse(localStorage.getItem('claimedLinks') || '{}');
+    let lastRncReset = localStorage.getItem('lastRncReset') || '1970-01-01';
+    let totalInvites = Number(localStorage.getItem('totalInvites') || 0);
+    let claimedMilestones = JSON.parse(localStorage.getItem('claimedMilestones') || '[]');
+
+    function updateDashboardPoints() {
+      localStorage.setItem('totalTokens', totalTokens);
+      localStorage.setItem('rafitMngPoints', totalTokens);
+      window.dispatchEvent(new Event('storage'));
+    }
+
+    function showTab(i) {
+      document.querySelectorAll('.tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
+      document.querySelectorAll('.section').forEach((s, idx) => s.classList.toggle('active', idx === i));
+    }
+
+    function renderDailyTasks() {
+      const container = document.getElementById('tab0');
+      container.innerHTML = '';
+      for (let i = 1; i <= 30; i++) {
+        const isClaimed = claimedDays.includes(i);
+        const now = Date.now();
+        const lastClaim = Number(localStorage.getItem('lastClaimTime') || 0);
+        const nextClaimAllowed = lastClaim + 246060 * 1000;
+        const canClaim = !isClaimed && (i === 1 || claimedDays.includes(i - 1)) && now >= nextClaimAllowed;
+        const box = document.createElement('div');
+        box.className = 'task-box' + (isClaimed ? ' locked' : '');
+        box.innerHTML = `<h3>Day ${i} Login</h3><p>Claim ${i} Token</p><button class="btn" ${!canClaim ? 'disabled' : ''} onclick="claimDay(${i})">${isClaimed ? 'Claimed' : 'Claim'}</button>`;
+        container.appendChild(box);
+      }
+    }
+
+    function claimDay(day) {
+      claimedDays.push(day);
+      localStorage.setItem('claimedDays', JSON.stringify(claimedDays));
+      totalTokens += day;
+      localStorage.setItem('lastClaimTime', Date.now());
+      updateMore(`Daily Task Day ${day} claimed`);
+      updateDashboardPoints();
+      renderDailyTasks();
+    }
+
+    function renderRNC() {
+      const container = document.getElementById('tab1');
+      container.innerHTML = '';
+      const today = new Date().toISOString().slice(0, 10);
+      if (lastRncReset !== today) {
+        claimedLinks = {};
+        localStorage.setItem('claimedLinks', '{}');
+        localStorage.setItem('lastRncReset', today);
+      }
+
+      const links = [
+        ['YouTube', 'https://youtube.com/@rafit_2f6?si=KjePFN5we86DcdX9'],
+        ['Instagram', 'https://www.instagram.com/rafit_2f6?igsh=MXVoMXVkd2UzcXM3cw=='],
+        ['Facebook', 'https://www.facebook.com/profile.php?id=61567699599483'],
+        ['X', 'https://x.com/rafit_2f6?s=09'],
+        ['Discord', 'https://discord.gg/e3pfh8mf'],
+        ['Website', 'https://sites.google.com/view/rafit-2f6/home'],
+        ['Telegram Official', 'https://t.me/rafir_2f6'],
+        ['2F6 Team', 'https://t.me/rafit_2f6_team'],
+        ['Help Bot', 'https://t.me/Help_Team_2f6_bot'],
+        ['Hello Team', 'https://t.me/help_team_2f6'],
+        ['RAFIT NUQ YT', 'https://youtube.com/@rafit_nuq?si=NsXe0kUYcBb-quia'],
+        ['RAFIT NUQ TG', 'https://t.me/RAFIT_NUQ'],
+      ];
+
+      links.forEach(([title, url], i) => {
+        const isClaimed = claimedLinks[title] === true;
+        const box = document.createElement('div');
+        box.className = 'task-box' + (isClaimed ? ' locked' : '');
+        box.innerHTML = `<h3>${title}</h3><p><a href="${url}" target="_blank" style="color:#58a6ff">Join ${title}</a></p><button class="btn" id="btn-${i}" ${isClaimed ? 'disabled' : ''} onclick="verifyAndClaim('${title}', ${i})">${isClaimed ? 'Claimed' : 'Claim 5 Tokens'}</button>`;
+        container.appendChild(box);
+      });
+    }
+
+    function verifyAndClaim(title, btnId) {
+      const btn = document.getElementById(`btn-${btnId}`);
+      btn.disabled = true;
+      btn.innerText = 'Verifying...';
+      setTimeout(() => {
+        claimedLinks[title] = true;
+        localStorage.setItem('claimedLinks', JSON.stringify(claimedLinks));
+        totalTokens += 5;
+        updateMore(`Joined ${title}`);
+        updateDashboardPoints();
+        renderRNC();
+      }, 5000);
+    }
+
+    function renderReferralMilestones() {
+      const container = document.getElementById('invite-milestones');
+      container.innerHTML = '';
+      document.getElementById('total-invites').innerText = totalInvites;
+      const milestones = [
+        { count: 10, reward: 20 },
+        { count: 50, reward: 100 },
+        { count: 100, reward: 200 },
+        { count: 500, reward: 1000 },
+        { count: 1000, reward: 2000 },
+        { count: 10000, reward: 20000 },
+        { count: 100000, reward: 50000 },
+      ];
+      milestones.forEach(m => {
+        const isClaimed = claimedMilestones.includes(m.count);
+        const canClaim = totalInvites >= m.count && !isClaimed;
+        const box = document.createElement('div');
+        box.className = 'task-box' + (!canClaim && !isClaimed ? ' locked' : '');
+        box.innerHTML = `<h3>${m.count} Invites</h3><p>Reward: ${m.reward} Points</p><button class="btn" ${!canClaim ? 'disabled' : ''} onclick="claimMilestone(${m.count}, ${m.reward})">${isClaimed ? 'Claimed' : 'Claim'}</button>`;
+        container.appendChild(box);
+      });
+    }
+
+    function claimMilestone(count, reward) {
+      claimedMilestones.push(count);
+      localStorage.setItem('claimedMilestones', JSON.stringify(claimedMilestones));
+      totalTokens += reward;
+      updateMore(`${count} Invite Milestone claimed`);
+      updateDashboardPoints();
+      renderReferralMilestones();
+    }
+
+    function updateMore(text) {
+      const el = document.getElementById('completed-list');
+      el.innerHTML += `<br>✅ ${text}`;
+    }
+
+    // ✅ Show total points when RFP-A clicked
+    function showTotalPoints() {
+      alert("Total Points: " + totalTokens);
+    }
+
+    // Initial Render
+    renderDailyTasks();
+    renderRNC();
+    renderReferralMilestones();
+  </script>
+</body>
+</html>

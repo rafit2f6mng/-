@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RFM Page</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+      overflow-x: hidden;
+    }
+    .close-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 1000;
+      border-radius: 6px;
+    }
+    .section-tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 60px;
+      background: #111;
+      padding: 10px;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      background: #222;
+      border-radius: 8px;
+    }
+    .tab.active {
+      background: #0f0;
+      color: black;
+    }
+    .section {
+      display: none;
+      padding: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    .circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 10px solid #00ff00;
+      margin: 30px auto;
+      animation: fillCircle 120s linear forwards;
+    }
+    @keyframes fillCircle {
+      0% { border-color: #444; }
+      100% { border-color: #00ff00; }
+    }
+    .register-form {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .register-form input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 80%;
+      max-width: 300px;
+      border-radius: 6px;
+      border: none;
+    }
+    .register-form button {
+      background: #0f0;
+      color: black;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .robot {
+      width: 100px;
+      height: 100px;
+      background: url('https://cdn-icons-png.flaticon.com/512/4712/4712104.png') no-repeat center/contain;
+      animation: fly 5s linear infinite;
+      margin: 30px auto;
+    }
+    @keyframes fly {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-200px); }
+      100% { transform: translateY(0); }
+    }
+    .rafit-label {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 20px;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <button class="close-button" onclick="goBackToDashboard()">Close</button>  <div class="section-tabs">
+    <div class="tab active" onclick="switchTab('rec')">REC</div>
+    <div class="tab" onclick="switchTab('robox')">ROBOX</div>
+  </div>  <div id="rec" class="section active">
+    <div class="circle"></div>
+    <div class="register-form">
+      <input type="text" id="fullname" placeholder="Full Name" required>
+      <input type="text" id="telegram" placeholder="Telegram Username" required>
+      <input type="email" id="email" placeholder="Gmail" required>
+      <button onclick="registerUser()">Register</button>
+      <p id="reg-status" style="margin-top:10px;color:#0f0;"></p>
+    </div>
+  </div>  <div id="robox" class="section">
+    <div class="robot" onclick="restartRobot()"></div>
+    <div class="rafit-label">RAFIT 2F6 MNG</div>
+  </div>  <script>
+    function goBackToDashboard() {
+      window.location.href = 'dashboard.html#MNG';
+    }
+
+    let registered = false;
+    function registerUser() {
+      if (registered) return;
+      const name = document.getElementById('fullname').value;
+      const telegram = document.getElementById('telegram').value;
+      const email = document.getElementById('email').value;
+      if (name && telegram && email) {
+        document.getElementById('reg-status').innerText = 'Big Soon';
+        registered = true;
+      } else {
+        alert('Please fill all fields');
+      }
+    }
+
+    function switchTab(tab) {
+      const sections = document.querySelectorAll('.section');
+      const tabs = document.querySelectorAll('.tab');
+      sections.forEach(s => s.classList.remove('active'));
+      tabs.forEach(t => t.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function restartRobot() {
+      const robot = document.querySelector('.robot');
+      robot.style.animation = 'none';
+      void robot.offsetWidth;
+      robot.style.animation = 'fly 5s linear infinite';
+    }
+  </script></body>
+</html>
